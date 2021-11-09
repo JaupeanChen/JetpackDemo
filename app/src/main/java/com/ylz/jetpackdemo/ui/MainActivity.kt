@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil
 import com.ylz.jetpackdemo.R
 import com.ylz.jetpackdemo.base.XEventBus
 import com.ylz.jetpackdemo.databinding.MainActivityBinding
+import com.ylz.jetpackdemo.ui.ComposeActivity
 
 class MainActivity : AppCompatActivity() {
 

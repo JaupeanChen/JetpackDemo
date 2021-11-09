@@ -14,4 +14,5 @@
     <string name="viewmodel_activity_label_text">Uses a ViewModel to hold data and handle user actions, using better alternatives</string>
     <string name="see_readme">See README.md for details</string>
     <string name="title_activity_compose">ComposeActivity</string>
+    <string name="title_activity_compose_sample">ComposeSampleActivity</string>
 </resources>

@@ -2,10 +2,14 @@ package com.ylz.jetpackdemo.ui
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,16 +24,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.core.view.forEach
+import androidx.lifecycle.ViewModel
 import com.ylz.jetpackdemo.R
 import com.ylz.jetpackdemo.data.ConversationSampleData
 import com.ylz.jetpackdemo.ui.ui.theme.JetpackDemoTheme
 
 class ComposeActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -39,7 +48,30 @@ class ComposeActivity : ComponentActivity() {
 //                    Greeting("Android")
 //                }
 //                MessageCard(msg = Message("Android", "JetPack Compose"))
-                Conversation(messages = ConversationSampleData.conversationSample)
+//                Conversation(messages = ConversationSampleData.conversationSample)
+                MyScaffold(onBackPressed = { finishActivity() })
+            }
+        }
+    }
+
+    private fun finishActivity() {
+        this.finish()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        window.decorView.postDelayed(
+            {
+                transverse((window.decorView as ViewGroup), null, 1)
+            }, 1000
+        )
+    }
+
+    private fun transverse(childView: View, father: View?, index: Int) {
+        Log.d("Compose", "第{$index}层:$childView, 父类：$father")
+        if (childView is ViewGroup) {
+            childView.forEach {
+                transverse(it, childView, index + 1)
             }
         }
     }
@@ -50,22 +82,40 @@ fun Greeting(name: String) {
     Text(text = "Hello $name!")
 }
 
-@Preview(showBackground = true)
-@Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true,
-    name = "Dark Mode"
-)
+//@Preview(showBackground = true)
+//@Preview(
+//    uiMode = Configuration.UI_MODE_NIGHT_YES,
+//    showBackground = true,
+//    name = "Dark Mode"
+//)
 @Composable
 fun DefaultPreview() {
     JetpackDemoTheme {
 //        Greeting("Android")
 //        MessageCard(msg = Message("Android", "JetPack Compose"))
 //        Conversation(messages = ConversationSampleData.conversationSample)
-        MyAppTopAppBar(topAppBarText = "主页") {
-
-        }
+        MyScaffold(onBackPressed = {})
     }
+}
+
+@Composable
+fun MyScaffold(onBackPressed: () -> Unit) {
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        drawerContent = { Text(text = "Drawer Content") },
+        topBar = {
+//            MyAppTopAppBar(topAppBarText = "主页", onBackPressed)
+            CenterTitleAppBar("Hello", onBackPressed)
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text(text = "Inc") },
+                onClick = { /*TODO*/ })
+        },
+        content = { Conversation(messages = ConversationSampleData.conversationSample) },
+    )
 }
 
 @Composable
@@ -136,6 +186,8 @@ fun MessageCard(msg: Message) {
 
 @Composable
 fun MyAppTopAppBar(topAppBarText: String, onBackPressed: () -> Unit) {
+    //can use CenterTopAppBar
+    //https://gist.github.com/evansgelist/aadcd633e9b160f9f634c16e99ffe163
     TopAppBar(
         title = {
             Text(
@@ -155,5 +207,69 @@ fun MyAppTopAppBar(topAppBarText: String, onBackPressed: () -> Unit) {
     )
 }
 
+@Composable
+fun CenterTitleAppBar(title: String, onBackPressed: () -> Unit) {
+    val appBarHorizontalPadding = 4.dp
+    val titleIconModifier = Modifier
+        .fillMaxHeight()
+        .width(72.dp - appBarHorizontalPadding)
+
+    TopAppBar(
+        backgroundColor = MaterialTheme.colors.primary,
+        modifier = Modifier.fillMaxWidth(),
+        elevation = 0.dp,
+    ) {
+        Box(Modifier.height(32.dp)) {
+            //Navigation Icon
+            Row(titleIconModifier, verticalAlignment = Alignment.CenterVertically) {
+                //CompositionLocalProvider用于在启用或停用相应按钮时更改内容的alpha值
+                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
+                    IconButton(onClick = onBackPressed ) {
+                        Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            }
+            //Title
+            Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                ProvideTextStyle(value = MaterialTheme.typography.h6) {
+                    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
+                        Text(
+                            text = title,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+
+            //actions
+            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                Row(
+                    Modifier.fillMaxHeight(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                }
+            }
+
+        }
+    }
+}
+
 
 data class Message(val author: String, val body: String)
+
+sealed class UiState {
+    object SignedOut : UiState()
+    object InProgress : UiState()
+    object Error : UiState()
+    object SignIn : UiState()
+}
+
+class ComposeViewModel : ViewModel() {
+    private val _uiState = mutableStateOf(UiState.SignedOut)
+    val uiState: State<UiState>
+        get() = _uiState
+}

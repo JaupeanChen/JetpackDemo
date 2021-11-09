@@ -10,6 +10,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JetpackDemo">
         <activity
+            android:name=".ui.ComposeSampleActivity"
+            android:exported="true"
+            android:label="@string/title_activity_compose_sample"
+            android:theme="@style/Theme.JetpackDemo.NoActionBar" />
+        <activity
             android:name=".ui.ComposeActivity"
             android:exported="true"
             android:label="@string/title_activity_compose"

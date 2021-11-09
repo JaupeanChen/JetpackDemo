@@ -48,7 +48,36 @@ object ConversationSampleData {
         Message(
             "Colleague",
             "Android Studio Arctic Fox tooling for Compose is top notch ^_^"
-        )
+        ),
+        Message(
+            "FaceBook",
+            "Haha, take a look at Jetpack Compose, it's great!\n" +
+                    "It's the Android's modern toolkit for building native UI." +
+                    "It simplifies and accelerates UI development on Android." +
+                    "Less code, powerful tools, and intuitive Kotlin APIs :)"
+        ),
+        Message(
+            "Meta",
+            "Android Studio Arctic Fox is good! We like it so much!"
+        ),
+        Message(
+            "FaceBook",
+            "Haha, take a look at Jetpack Compose, it's great!\n" +
+                    "It's the Android's modern toolkit for building native UI." +
+                    "It simplifies and accelerates UI development on Android." +
+                    "Less code, powerful tools, and intuitive Kotlin APIs :)"
+        ),
+        Message(
+            "Meta",
+            "Android Studio Arctic Fox is good! We like it so much!"
+        ),
+        Message(
+            "FaceBook",
+            "Haha, take a look at Jetpack Compose, it's great!\n" +
+                    "It's the Android's modern toolkit for building native UI." +
+                    "It simplifies and accelerates UI development on Android." +
+                    "Less code, powerful tools, and intuitive Kotlin APIs :)"
+        ),
     )
 
 }
